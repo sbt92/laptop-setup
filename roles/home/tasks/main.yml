@@ -1,37 +1,23 @@
 - name: Add Tailscale repository key
   ansible.builtin.apt_key:
-    url: https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg
+    url: https://pkgs.tailscale.com/stable/debian/trixie.noarmor.gpg
     keyring: /usr/share/keyrings/tailscale-archive-keyring.gpg
     state: present
-  when: ansible_facts['lsb']['codename'] == "bookworm"
+  when: ansible_facts['lsb']['codename'] == "trixie"
 
 - name: Add Tailscale repository
   ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/tailscale-archive-keyring.gpg] https://pkgs.tailscale.com/stable/debian bookworm main"
+    repo: "deb [signed-by=/usr/share/keyrings/tailscale-archive-keyring.gpg] https://pkgs.tailscale.com/stable/debian trixie main"
     state: present
     filename: tailscale
-  when: ansible_facts['lsb']['codename'] == "bookworm"
-
-- name: Add Syncthing repository key
-  ansible.builtin.apt_key:
-    url: https://syncthing.net/release-key.gpg
-    keyring: /usr/share/keyrings/syncthing-archive-keyring.gpg
-    state: present
-
-- name: Add Syncthing repository
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/syncthing-archive-keyring.gpg] https://apt.syncthing.net/ syncthing stable"
-    state: present
-    filename: syncthing
+  when: ansible_facts['lsb']['codename'] == "trixie"
 
 - name: Install Home Applications
   ansible.builtin.apt:
     pkg: 
-      - syncthing
       - hugo
       - kiwix
       - calibre
-      - zeal
       - tailscale
       - nextcloud-desktop
     update_cache: yes
@@ -43,10 +29,4 @@
     state: present
   loop:
     - im.riot.Riot
-    - com.discordapp.Discord
-
-- name: Enable service syncthing is enabled and started
-  ansible.builtin.systemd:
-    name: syncthing@sam.service
-    enabled: true
-    state: started
+    - org.subsurface_divelog.Subsurface

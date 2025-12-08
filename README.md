@@ -1,5 +1,6 @@
 # Laptop Setup
-This is an Ansible Playbook to get my Debian workstation up and running as quickly as possible. 
+This is an Ansible Playbook to get my Debian systems up and running as quickly as possible. 
+Originally created to setup my workstations it has evolved to an infra repo for my Debian systems
 
 
 ## Prereqs
@@ -9,14 +10,7 @@ su -
 usermod -aG sudo sam
 ```
 
-Once you've downloaded the repo
-```
-sudo apt-get update && sudo apt-get upgrade -y
-sudo apt-get install git -y
-git clone https://github.com/sbt92/laptop-setup
-```
-
-Uncomment the roles you want. e.g. Work for Work Machines. Note if your distro has just released some third party repositories may not be supported yet like Hashicorp and Docker
+Once you've downloaded the repo uncomment the roles you want. e.g. Work for Work Machines. Note if a new version of Debian has released some third party repositories may not be supported yet like Docker
 
 ## Install
 ```

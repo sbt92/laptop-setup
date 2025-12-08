@@ -1,23 +1,30 @@
 - name: Add Source list
   ansible.builtin.copy:
-    src:  source.list
-    dest: /etc/apt/source.list
+    src:  debian.sources
+    dest: /etc/apt/sources.list.d/debian.sources
     owner: root
     group: root
     mode: '0644'
 
-- name: Add Backports repository
-  ansible.builtin.apt_repository:
-    repo: "deb http://deb.debian.org/debian bookworm-backports main non-free contrib"
-    state: present
-    filename: backports
-  when: ansible_facts['lsb']['codename'] == "bookworm"
+- name: Remove legacy source list
+  ansible.builtin.file:
+    path: /etc/apt/sources.list
+    state: absent
+
+- name: Add debian-backports repository
+  ansible.builtin.copy:
+    src:  debian-backports.sources
+    dest: /etc/apt/sources.list.d/debian-backports.sources
+    owner: root
+    group: root
+    mode: '0644'
 
 - name: Install Applications
   ansible.builtin.apt:
     pkg: 
       - git
       - vim
+      - curl
       - rsync
       - qemu-system
       - libvirt-clients
@@ -60,8 +67,8 @@
 
 - name: Download and Install aws-vault
   ansible.builtin.get_url:
-    url: https://github.com/99designs/aws-vault/releases/latest/download/aws-vault-linux-amd64
+    url: https://github.com/ByteNess/aws-vault/releases/latest/download/aws-vault-linux-amd64
     dest: /usr/local/bin/aws-vault
     mode: '0755'
-    checksum: sha256:https://github.com/99designs/aws-vault/releases/latest/download/SHA256SUMS
+    checksum: sha256:https://github.com/ByteNess/aws-vault/releases/latest/download/aws-vault_sha256_checksums.txt 
   when: awsvault.stat.islnk is not defined
