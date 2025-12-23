@@ -4,21 +4,18 @@
     state: present
   loop:
     - com.slack.Slack
-    - com.jetbrains.IntelliJ-IDEA-Ultimate
-    - com.jetbrains.GoLand
-    - com.jetbrains.PyCharm-Professional
-    - com.jetbrains.RubyMine
-    - org.chromium.Chromium
 
 - name: Check if OnePassword is installed
-  shell: "flatpak list | grep OnePassword"
+  shell: flatpak info com.onepassword.OnePassword
   register: OnePassword
+  ignore_errors: true 
+  changed_when: false
 
-- name: Install 1Password Flatpak Application
+- name: Install OnePassword Flatpak Application
   community.general.flatpak:
     name: https://downloads.1password.com/linux/flatpak/1Password.flatpakref
-    state: present
-  when: OnePassword.stdout | length == 0
+    state: latest
+  when: OnePassword.rc !=0
 
 - name: Create work repo directory
   ansible.builtin.file:

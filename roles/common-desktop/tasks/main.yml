@@ -1,17 +1,3 @@
-- name: Add Terraform repository key
-  ansible.builtin.apt_key:
-    url: https://apt.releases.hashicorp.com/gpg
-    keyring: /usr/share/keyrings/hashicorp-archive-keyring.gpg
-    state: present
-  when: ansible_facts['lsb']['codename'] == "bookworm"
-
-- name: Add Terraform repository
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg]     https://apt.releases.hashicorp.com bookworm main"
-    state: present
-    filename: hashicorp
-  when: ansible_facts['lsb']['codename'] == "bookworm"
-
 - name: Install Applications
   ansible.builtin.apt:
     pkg: 
@@ -19,9 +5,10 @@
       - gnome-software-plugin-flatpak
       - xclip
       - zsh
-      - terraform
       - keepassxc
       - vlc
+      - zeal
+      - p7zip-full
     update_cache: yes
     state: present
 
@@ -59,6 +46,20 @@
   loop:
     - com.spotify.Client
     - com.mattjakeman.ExtensionManager
+    - net.cozic.joplin_desktop
+    - org.chromium.Chromium
+
+- name: Check if tfenv is installed
+  ansible.builtin.stat:
+    path: /home/sam/.tfenv
+  register: tfenv
+
+- name: Install tfenv
+  ansible.builtin.git: 
+    repo: https://github.com/tfutils/tfenv.git 
+    dest: /home/sam/.tfenv
+  become_user: sam
+  when: not tfenv.stat.exists
 
 - name: Check if Visual Studio Code is installed
   ansible.builtin.stat:
@@ -70,52 +71,28 @@
     deb: https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64
   when: vscode.stat.islnk is not defined
 
-- name: Check if Pyenv is installed
+- name: Check if uv is installed
   ansible.builtin.stat:
-    path: /home/sam/.pyenv
-  register: pyenv
+    path: /home/sam/.local/bin/uv
+  register: uv
 
-- name: Install Pyenv Prerequisites
-  ansible.builtin.apt:
-    pkg: 
-      - make
-      - build-essential
-      - libssl-dev
-      - zlib1g-dev
-      - libbz2-dev
-      - libreadline-dev
-      - libsqlite3-dev
-      - wget
-      - curl
-      - llvm
-      - libncursesw5-dev
-      - xz-utils
-      - tk-dev
-      - libxml2-dev
-      - libxmlsec1-dev
-      - libffi-dev
-      - liblzma-dev
-    update_cache: yes
-    state: present
-  when: not pyenv.stat.exists
-
-- name: Dowload pyenv Installer
+- name: Dowload uv Installer
   ansible.builtin.get_url:
-    url: https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer
-    dest: /home/sam/pyenv-installer
+    url: https://astral.sh/uv/install.sh
+    dest: /home/sam/install.sh
     mode: '0755'
-  when: not pyenv.stat.exists
+  when: not uv.stat.exists
 
-- name: Install pyenv
-  ansible.builtin.command: /home/sam/pyenv-installer
+- name: Install uv
+  ansible.builtin.command: /home/sam/install.sh
   become_user: sam
-  when: not pyenv.stat.exists
+  when: not uv.stat.exists
 
-- name: rm pyenv installer script
+- name: rm uv installer script
   ansible.builtin.file:
-    path: /home/sam/pyenv-installer
+    path: /home/sam/install.sh
     state: absent
-  when: not pyenv.stat.exists
+  when: not uv.stat.exists
 
 - name: Create sbt92 repo directory
   ansible.builtin.file:
