@@ -30,6 +30,7 @@
       - libvirt-clients
       - libvirt-daemon-system
       - virt-manager
+      - ufw
     update_cache: yes
     state: present
 
@@ -37,6 +38,12 @@
   ansible.builtin.user:
     name: sam
     groups: libvirt
+    append: true
+
+- name: Append docker group 
+  ansible.builtin.user:
+    name: sam
+    groups: docker
     append: true
 
 - name: Check if awscli is installed
@@ -59,16 +66,3 @@
   ansible.builtin.file:
     path: /home/sam/Downloads/aws
     state: absent
-
-- name: Check if aws-vault is installed
-  ansible.builtin.stat:
-    path: /usr/local/bin/aws-vault
-  register: awsvault
-
-- name: Download and Install aws-vault
-  ansible.builtin.get_url:
-    url: https://github.com/ByteNess/aws-vault/releases/latest/download/aws-vault-linux-amd64
-    dest: /usr/local/bin/aws-vault
-    mode: '0755'
-    checksum: sha256:https://github.com/ByteNess/aws-vault/releases/latest/download/aws-vault_sha256_checksums.txt 
-  when: awsvault.stat.islnk is not defined

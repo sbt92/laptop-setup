@@ -8,6 +8,7 @@
       - keepassxc
       - vlc
       - zeal
+      - p7zip-full
     update_cache: yes
     state: present
 
